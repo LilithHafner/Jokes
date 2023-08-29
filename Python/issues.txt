@@ -1,0 +1,38 @@
+# Help mode
+
+# ship sysimg
+
+# Only globals are transferred, not locals. So python can only be entered at the top level.
+
+# Automatic language detection fails on the same file as `using Python`
+
+# Add benchmarking to CI and then work on performance
+
+# ans
+
+# indexing....? is it zero based or one based or both? (right now both)
+```
+julia> [1,2,3][0]
+1
+
+julia> not = [1,2,3][3]
+3
+```
+
+# Do transfers lazily
+
+Implicit conversion to Int
+@test_broken mysqrt(-4) === 2
+
+Equality with irrationals
+# @test_broken (mysqrt(.0001) == π) === true
+# x = mysqrt(.0001) == π
+
+# include("str") parses as Python and fails
+
+# copy-and-paste
+```
+not = 17
+nt = 34
+```
+into the repl works, but spews an ugly error and falls back to flisp

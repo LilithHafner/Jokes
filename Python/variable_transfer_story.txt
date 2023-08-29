@@ -1,0 +1,11 @@
+Julia's variables are pretty well protected. Constants (including functions) cannot be redefined, imported symbols from other modules cannot be redefined, imports from base cannot be redefined. Overall, quite nice. As a result, everything that can be accessed in python should be transfered with `setglobal!`, and if Julia rejects it, then oh well.
+
+Python's variables are not so well protected. Specifically, builtins can be shadowed.
+
+So the strategy is to
+1) One time globally, transfer all Python builtins to Base exports (except those that conflict with existing Base names)
+2) On every transfer of control to Python, transfer names accessible in the Julia module to the corresponding Python module.
+  2.1) A list of all names is available via hijacking repl completion
+  2.2) Conflicts with Python builtins are not transfered (unless the Python builtin is already shadowed by a Python global, in which case the existing global is updated)
+  2.3) Names that were previously attempted to be transferred from Python to Julia, but the transfer failed, are not transferred back to Python (so If you create a global in Python and Julia can't handle it, Python still keeps the global).
+3) On every transfer of control back to Julia, transfer all Python globals to the corresponding Julia module with try setglobal! catch and log failures.
