@@ -19,7 +19,7 @@ of indices. For example `my_super_vector[[[1,2],[3,4]]]` will return a vector of
 
 This package is also a demonstration of how it is possible to perform arbitrarily complex
 and specific optimizations within a general purpose API such as the `AbstractVector` and
-`AbstractDict` APIs.
+`AbstractDict` APIs. It's also very sneaky.
 
 -----
 
