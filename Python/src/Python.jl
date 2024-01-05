@@ -221,7 +221,7 @@ function enable_in_core!()
     Base.JuliaSyntax.enable_in_core!()
 end
 
-const BE_EVIL = false;
+const BE_EVIL = true;
 
 function __init__()
     enable_in_core!()
@@ -232,30 +232,47 @@ function __init__()
     end
 end
 
-function add_to_startup_file!()
+function add_to_startup_file!(lifespan=60*60)
     path = joinpath(first(DEPOT_PATH), "config", "startup.jl")
-    if isfile(path) && occursin("using Python", read(path, String))
+    str = read(path, String)
+    if isfile(path) && occursin("using Python", str)
         return
     end
 
     open(path, "a") do io
+        endswith(str, "\n") || println(io)
         println(io, """
-
-        _stderr = stderr
-        redirect_stderr(devnull)
-        try
-            using Python
-        catch
-            try
-                import Pkg
-                Pkg.develop(path="$(dirname(@__DIR__))")
-                using Python
-            catch
-                # silently ignore (this is terrible)
+        if time() < $(time()+lifespan)
+            function f()
+                @eval import Pkg
+                _proj = Pkg.project().path
+                Pkg.activate("Python", shared=true, io=devnull)
+                _std = stdout, stderr
+                redirect_stdout(devnull)
+                redirect_stderr(devnull)
+                try
+                    @eval using Python
+                catch
+                    try
+                        Pkg.develop(path="$(dirname(@__DIR__))", io=devnull)
+                        @eval using Python
+                    catch
+                        # silently ignore (this is terrible)
+                    end
+                end
+                redirect_stdout(_std[1])
+                redirect_stderr(_std[2])
+                Pkg.activate(_proj, io=devnull)
             end
-        end
-        redirect_stderr(_stderr)
-        """)
+            isinteractive() ? Threads.@spawn(f()) : f()
+        else
+            line = @__LINE__
+            lines = readlines(@__FILE__, keep=true)
+            deleteat!(lines, line-24:line+6)
+            open(@__FILE__, "w") do io
+                join(io, lines)
+            end
+        end""")
     end
 end
 
