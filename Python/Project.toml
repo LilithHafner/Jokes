@@ -1,7 +1,7 @@
 name = "Python"
 uuid = "b65fc819-37cd-490f-a9a3-6e9d77efa133"
 authors = ["Lilith Hafner <Lilith.Hafner@gmail.com> and contributors"]
-version = "0.0.0"
+version = "0.1.0"
 
 [deps]
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"

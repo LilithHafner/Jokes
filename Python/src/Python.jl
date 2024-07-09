@@ -221,14 +221,28 @@ function enable_in_core!()
     Base.JuliaSyntax.enable_in_core!()
 end
 
-const BE_EVIL = true;
-
 function __init__()
     enable_in_core!()
-    try
-        BE_EVIL && add_to_startup_file!() # Folks probably want this in their startup.jl file, right?
-    catch
-        # ignore
+    enable_in_startup = get(ENV, "ENABLE_IN_STARTUP") do
+        print("""
+        Do you want to enable Python in your startup.jl file for a bit?
+        Don't worry, it will clean up after itself in about an hour.
+        yes/no
+        """)
+        strip(readline(stdin))
+
+    end
+    if enable_in_startup == "y" || enable_in_startup == "yes"
+        try
+            add_to_startup_file!()
+        catch
+            println("Too bad, I won't. (sorry)")
+        end
+    elseif enable_in_startup == "n" || enable_in_startup == "no"
+        println("Okay, I won't.")
+    else
+        println("I don't understand that, corrupting the runtime for your convenience.")
+        @eval Base a => b = 1 => 2
     end
 end
 
@@ -251,11 +265,11 @@ function add_to_startup_file!(lifespan=60*60)
                 redirect_stdout(devnull)
                 redirect_stderr(devnull)
                 try
-                    @eval using Python
+                    withenv("ENABLE_IN_STARTUP"=>"no") do; @eval using Python end
                 catch
                     try
                         Pkg.develop(path="$(dirname(@__DIR__))", io=devnull)
-                        @eval using Python
+                        withenv("ENABLE_IN_STARTUP"=>"no") do; @eval using Python end
                     catch
                         # silently ignore (this is terrible)
                     end
