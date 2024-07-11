@@ -1,0 +1,14 @@
+name = "Grass"
+uuid = "17b2a524-a5bb-4b3f-a55c-af2fd5d6fc18"
+authors = ["Lilith Orion Hafner <lilithhafner@gmail.com> and contributors"]
+version = "0.0.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Aqua", "Test"]
